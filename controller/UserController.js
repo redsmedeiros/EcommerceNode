@@ -13,11 +13,31 @@ const createUser = asyncHandler(async (req, res) =>{
     if(!findUser){
         //usuario já existe e retornar mensagem
         const newUser = User.create(req.body)
-        res.json(newUser)
+        console.log(newUser)
+        res.json({newUser})
     }else{
 
        throw new Error('Usuário não existe')
     }
 })
 
-module.exports = { createUser }
+const loginUserController = asyncHandler(async (req, res)=>{
+
+    const {email , password} = req.body;
+
+    const findUser = await User.findOne({email: email})
+
+    //esse tipo de bcrypt não está funcionando - if(findUser && await findUser.isPasswordMatched(password))
+    if(findUser){
+
+        res.json({findUser});
+        
+    }else{
+        throw new Error('Senha ou email inválidos')
+    }
+})
+
+module.exports = { 
+    createUser,
+    loginUserController 
+}
