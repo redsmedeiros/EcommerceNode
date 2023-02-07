@@ -1,9 +1,13 @@
 const express = require('express')
 const router = express.Router()
-const { createUser, loginUserController } = require('../controller/UserController')
+const { createUser, loginUserController, getAllUser, getUser, deleteUser, updateUser } = require('../controller/UserController')
 
-//rota de post
+//rotas
 router.post('/register', createUser)
 router.post('/login', loginUserController)
+router.get('/users', getAllUser)
+router.get('/:id', getUser)
+router.delete('/:id', deleteUser)
+router.put('/:id', updateUser)
 
 module.exports = router
