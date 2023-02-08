@@ -28,8 +28,20 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         default: "user"
-    }
-})
+    },
+    cart:{
+        type: Array,
+        default: []
+    },
+    address: [{
+        type: Object,
+        ref: "Address"
+    }],
+    wishlist: [{
+        type: Object,
+        ref: "Product"
+    }]
+},{timestamps: true})
 
 userSchema.pre("save", async function (next){
 
