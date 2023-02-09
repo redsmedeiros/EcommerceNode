@@ -16,7 +16,11 @@ const authMiddleware = asyncHandler(async(req, res, next)=>{
                 
                 const decoded = jwt.verify(token, 'secret')
 
-                console.log(decoded)
+                const user = await User.findById(decoded?.id)
+
+                req.user = user
+
+                next()
             }
 
         }catch(error){
@@ -30,4 +34,18 @@ const authMiddleware = asyncHandler(async(req, res, next)=>{
     }
 })
 
-module.exports = {authMiddleware}
+const isAdmin = asyncHandler(async(req, res, next)=>{
+
+    const { email } = req.user
+
+    const adminUser = await User.findOne({email: email})
+
+    if(adminUser.role !== 'admin'){
+        throw new Error('Você não é administador')
+    }else{
+        next()
+    }
+
+})
+
+module.exports = {authMiddleware, isAdmin} //1:26:52
