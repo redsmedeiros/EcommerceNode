@@ -118,11 +118,21 @@ const updateUser = asyncHandler(async (req, res)=>{
     }
 })
 
+const blockUser = asyncHandler(async (req, res)=>{
+
+})
+
+const unblockUser = asyncHandler(async (req, res)=>{
+
+})
+
 module.exports = { 
     createUser,
     loginUserController,
     getAllUser,
     getUser,
     deleteUser,
-    updateUser 
+    updateUser,
+    blockUser,
+    unblockUser 
 }
