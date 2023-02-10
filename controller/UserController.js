@@ -1,6 +1,7 @@
 const User = require('../models/UserModel')
 const asyncHandler = require('express-async-handler')
 const { generateToken } = require('../config/jwtToken')
+const validateMongoDbId = require('../utils/validateMongoDbId')
 
 const createUser = asyncHandler(async (req, res) =>{
 
@@ -99,6 +100,8 @@ const updateUser = asyncHandler(async (req, res)=>{
 
     const { _id } = req.user
 
+    validateMongoDbId(_id) //1:49:59
+
     try{
 
         const updateUser = await User.findByIdAndUpdate(_id, {
@@ -120,9 +123,41 @@ const updateUser = asyncHandler(async (req, res)=>{
 
 const blockUser = asyncHandler(async (req, res)=>{
 
+    //pegar o id dos params da requisição
+    const { id } = req.params
+
+    try{
+
+        //pegar por id e atualizar o usuario para bloqueado
+        const block = await User.findByIdAndUpdate(id, {isBlocked: true}, {new: true})
+
+        res.json({message: 'Usuário Bloqueado'})
+
+
+
+    }catch(error){
+
+        throw new Error(error)
+    }
+
 })
 
 const unblockUser = asyncHandler(async (req, res)=>{
+
+    //pegar o id dos params da requisição
+    const { id } = req.params
+
+    try{
+
+        //pegar por id e atualizar o usuario para bloqueado
+        const unblock = await User.findByIdAndUpdate(id, {isBlocked: false}, {new: true})
+
+        res.json({message: 'Usuário desbloqueado'})
+
+    }catch(error){
+
+        throw new Error(error)
+    }
 
 })
 
