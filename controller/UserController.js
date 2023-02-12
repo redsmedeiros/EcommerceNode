@@ -2,6 +2,7 @@ const User = require('../models/UserModel')
 const asyncHandler = require('express-async-handler')
 const { generateToken } = require('../config/jwtToken')
 const validateMongoDbId = require('../utils/validateMongoDbId')
+const generateRefreshToken = require('../config/refresh-token')
 
 const createUser = asyncHandler(async (req, res) =>{
 
@@ -31,6 +32,12 @@ const loginUserController = asyncHandler(async (req, res)=>{
 
     //esse tipo de bcrypt não está funcionando - if(findUser && await findUser.isPasswordMatched(password))
     if(findUser){
+
+        const refreshToken = await generateRefreshToken(findUser?.id)
+
+        const updatedUser = await User.findByIdAndUpdate(findUser.id, {
+            refreshToken: refreshToken
+        }, {new: true})
 
         res.json({
             _id: findUser?._id,
@@ -82,6 +89,8 @@ const deleteUser = asyncHandler(async (req, res)=>{
 
     const { id } = req.params
 
+    validateMongoDbId(_id) 
+
     try{
 
         const deletedUser = await User.findByIdAndDelete(id)
@@ -100,7 +109,7 @@ const updateUser = asyncHandler(async (req, res)=>{
 
     const { _id } = req.user
 
-    validateMongoDbId(_id) //1:49:59
+    validateMongoDbId(_id) //1:54:17
 
     try{
 
@@ -146,6 +155,8 @@ const unblockUser = asyncHandler(async (req, res)=>{
 
     //pegar o id dos params da requisição
     const { id } = req.params
+
+    validateMongoDbId(_id) 
 
     try{
 
