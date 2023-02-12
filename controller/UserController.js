@@ -3,6 +3,7 @@ const asyncHandler = require('express-async-handler')
 const { generateToken } = require('../config/jwtToken')
 const validateMongoDbId = require('../utils/validateMongoDbId')
 const generateRefreshToken = require('../config/refresh-token')
+const jwt = require('jsonwebtoken')
 
 const createUser = asyncHandler(async (req, res) =>{
 
@@ -68,7 +69,19 @@ const handleRefreshToken = asyncHandler( async (req, res)=>{
 
     const user = await User.findOne({refreshToken})
 
-    res.json(user)
+    if(!user) throw new Error('Usuário não encontrado')
+
+    jwt.verify(refreshToken, 'nossosecret', (err, decoded =>{
+
+        if(err || decoded.id !== user.id){
+
+            throw new Error('Algo deu errado')
+        }
+
+        const accessToken = generateToken(user?._id)
+
+        res.json({ accessToken })
+    }))
 
 })
 
@@ -191,6 +204,22 @@ const unblockUser = asyncHandler(async (req, res)=>{
 
 })
 
+const logout = asyncHandler(async (req, res)=>{
+
+    //pegar o cookie pela requisição
+    const cookie = req.cookies
+
+    //verificar se existe um token no cookie
+    if(!cookie?.refreshToken) throw new Error('Sem token nos cookies')
+
+    //pegar o token
+    const refreshToken = cookie.refreshToken
+
+    //encontrar um usuario com esse token
+    const user = await User.findOne({refreshToken}) //02:13:47
+
+})
+
 module.exports = { 
     createUser,
     loginUserController,
@@ -200,5 +229,6 @@ module.exports = {
     updateUser,
     blockUser,
     unblockUser,
-    handleRefreshToken 
+    handleRefreshToken,
+    logout 
 }
