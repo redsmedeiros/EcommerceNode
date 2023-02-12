@@ -33,11 +33,16 @@ const loginUserController = asyncHandler(async (req, res)=>{
     //esse tipo de bcrypt não está funcionando - if(findUser && await findUser.isPasswordMatched(password))
     if(findUser){
 
-        const refreshToken = await generateRefreshToken(findUser?.id)
+        const refreshToken = await generateRefreshToken(findUser?._id)
 
         const updatedUser = await User.findByIdAndUpdate(findUser.id, {
             refreshToken: refreshToken
         }, {new: true})
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 72*60*60*1000
+        })
 
         res.json({
             _id: findUser?._id,
@@ -51,6 +56,20 @@ const loginUserController = asyncHandler(async (req, res)=>{
     }else{
         throw new Error('Senha ou email inválidos')
     }
+})
+
+const handleRefreshToken = asyncHandler( async (req, res)=>{
+
+    const cookie = req.cookies
+
+    if(!cookie?.refreshToken) throw new Error('Sem token nos cookies')
+
+    const refreshToken = cookie.refreshToken
+
+    const user = await User.findOne({refreshToken})
+
+    res.json(user)
+
 })
 
 const getAllUser = asyncHandler( async (req, res)=>{
@@ -109,7 +128,7 @@ const updateUser = asyncHandler(async (req, res)=>{
 
     const { _id } = req.user
 
-    validateMongoDbId(_id) //1:54:17
+    validateMongoDbId(_id) 
 
     try{
 
@@ -180,5 +199,6 @@ module.exports = {
     deleteUser,
     updateUser,
     blockUser,
-    unblockUser 
+    unblockUser,
+    handleRefreshToken 
 }
