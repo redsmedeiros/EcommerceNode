@@ -216,7 +216,28 @@ const logout = asyncHandler(async (req, res)=>{
     const refreshToken = cookie.refreshToken
 
     //encontrar um usuario com esse token
-    const user = await User.findOne({refreshToken}) //02:13:47
+    const user = await User.findOne({refreshToken})
+
+    //verificar se veio um usuario
+    if(!user){
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: true
+        })
+        return res.sendStatus(204) //forbiden
+    }
+
+    //atualizar o refresh token do usuario
+    await User.findOneAndUpdate(refreshToken, {
+        refreshToken: ""
+    })
+
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: true
+    })
+
+    return res.sendStatus(204) //forbiden
 
 })
 
