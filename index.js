@@ -1,10 +1,12 @@
 const express = require('express')
 const cors = require('cors')
 const dbConnect = require('./config/dbConnect');
-const authRouter = require('./routes/authRoute')
 const bodyParse = require('body-parser');
 const { notFound, errorHandler } = require('./middlewares/errorHandler');
 const cookieParse = require('cookie-parser')
+
+const authRouter = require('./routes/authRoute')
+const productRoute = require('./routes/productRoute')
 
 //criação da aplicação e conectar com o banco
 const app = express()
@@ -22,6 +24,7 @@ const PORT = 5000
 
 //rotas - chama o arquivo de rotas e executada como callback
 app.use('/api/user', authRouter)
+app.use('/api/product', productRoute)
 
 //middlawares
 app.use(notFound)
